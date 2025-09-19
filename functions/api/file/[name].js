@@ -10,7 +10,6 @@ export async function onRequest(context) {
   if (obj.httpMetadata && obj.httpMetadata.contentType) {
     headers.set("Content-Type", obj.httpMetadata.contentType);
   } else {
-    // tentativa simples de deduzir
     const lower = key.toLowerCase();
     if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) headers.set("Content-Type", "image/jpeg");
     else if (lower.endsWith(".png")) headers.set("Content-Type", "image/png");

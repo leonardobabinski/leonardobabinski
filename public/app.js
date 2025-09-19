@@ -11,9 +11,18 @@ const btnDelete = document.getElementById("btnDelete");
 const chkKeep = document.getElementById("moveKeep");
 const chkPerm = document.getElementById("permanent");
 
+const dirPicker = document.getElementById("dirPicker");
+const progress = document.getElementById("progress");
+const progressText = document.getElementById("progressText");
+
 init();
 
 async function init() {
+  await refreshList();
+  setupUploader();
+}
+
+async function refreshList() {
   const r = await fetch("/api/images");
   const data = await r.json();
   if (!r.ok) {
@@ -111,3 +120,47 @@ document.addEventListener("keydown", (e) => {
   if (e.key.toLowerCase() === "a" || e.key === "1") keepCurrent();
   if (e.key.toLowerCase() === "d" || e.key === "2" || e.key === "Backspace") deleteCurrent();
 });
+
+function setupUploader() {
+  const label = document.querySelector(".upload-label");
+  label.addEventListener("click", () => dirPicker.click());
+  dirPicker.addEventListener("change", async () => {
+    const files = Array.from(dirPicker.files || []);
+    if (!files.length) return;
+
+    progress.value = 0;
+    progress.max = files.length;
+    progressText.textContent = `0 / ${files.length}`;
+
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      // Usa webkitRelativePath para manter subpastas
+      const rel = f.webkitRelativePath ? stripTopFolder(f.webkitRelativePath) : f.name;
+      const res = await fetch(`/api/upload?key=${encodeURIComponent(rel)}`, {
+        method: "PUT",
+        body: f,
+        headers: { "Content-Type": f.type || "application/octet-stream" }
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        alert(`Falha ao enviar ${rel}: ${e.error || res.status}`);
+        break;
+      }
+      progress.value = i + 1;
+      progressText.textContent = `${i + 1} / ${files.length}`;
+    }
+
+    // recarrega lista
+    await refreshList();
+    // limpa seleção
+    dirPicker.value = "";
+    setTimeout(() => { progress.value = 0; progressText.textContent = ""; }, 1500);
+  });
+}
+
+function stripTopFolder(p) {
+  // "pasta/foto1.jpg" -> "foto1.jpg"
+  const parts = p.split("/");
+  if (parts.length <= 1) return p;
+  return parts.slice(1).join("/");
+}

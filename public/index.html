@@ -23,6 +23,15 @@
       </div>
     </header>
 
+    <section class="uploader">
+      <label class="upload-label">
+        <input id="dirPicker" type="file" webkitdirectory multiple hidden />
+        📁 Selecionar pasta para enviar
+      </label>
+      <progress id="progress" value="0" max="100"></progress>
+      <span id="progressText"></span>
+    </section>
+
     <section class="viewer">
       <div class="image-holder">
         <img id="main" alt="imagem atual" />

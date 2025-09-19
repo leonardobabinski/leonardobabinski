@@ -1,11 +1,12 @@
 name = "classificador-imagens-cloudflare"
-main = "functions/[[path]].js"
 compatibility_date = "2024-11-01"
 
-# Bind do R2
+[pages]
+pages_build_output_dir = "public"
+
 [[r2_buckets]]
-binding = "BUCKET"            # como será acessado no código
-bucket_name = "images-bucket" # crie antes no painel ou via CLI
+binding = "BUCKET"
+bucket_name = "images-bucket"
 
 [vars]
 IMAGES_PREFIX = "images/"
